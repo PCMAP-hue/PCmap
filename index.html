@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC MAP v1.5 | 허위 매장 없는 진짜 수리점</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --electric-green: #00FF41;
+            --deep-charcoal: #1D1D1F;
+        }
+
+        body {
+            font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+            background-color: #FFFFFF;
+            color: var(--deep-charcoal);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Navigation Style */
+        .chip {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .chip:hover {
+            transform: scale(1.03);
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .chip-active {
+            background-color: var(--deep-charcoal) !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .sub-chip-active {
+            background-color: var(--electric-green) !important;
+            color: black !important;
+            font-weight: 800 !important;
+            box-shadow: 0 4px 12px rgba(0, 255, 65, 0.15);
+        }
+
+        /* Guide Card Style */
+        .video-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .video-overlay {
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-card:hover .video-overlay {
+            opacity: 1;
+        }
+
+        /* Premium Modal Style (Glassmorphism) */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            transform: scale(0.95) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        /* PC MAP v2.3 - Visual Identity */
+        .btn-kakao {
+            background-color: #FEE500;
+            color: #000000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-kakao:hover {
+            background-color: #FADA00;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(254, 229, 0, 0.3);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 25px rgba(0, 255, 65, 0.7);
+            }
+
+            100% {
+                box-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+            }
+        }
+
+        .premium-card {
+            background: linear-gradient(165deg, #fafffa 0%, #ffffff 50%, #f7fcf7 100%);
+            border: 2px solid #00FF41 !important;
+            animation: pulse 2.5s infinite ease-in-out;
+            position: relative;
+        }
+
+        .premium-badge {
+            background-color: #00FF41;
+            color: #000;
+            font-weight: 900;
+            font-size: 11px;
+            box-shadow: 0 4px 15px rgba(0, 255, 65, 0.4);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .premium-img-container {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            background: #f0fff4;
+        }
+
+        /* Force Wrap for 17+ regions */
+        .region-container {
+            display: flex;
+            flex-wrap: wrap !important;
+            gap: 10px;
+        }
+
+        .store-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+
+        .visit-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .visit-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+
+        .nav-partnership-btn {
+            border: 1.5px solid var(--electric-green);
+            transition: all 0.3s ease;
+        }
+
+        .nav-partnership-btn:hover {
+            background-color: var(--electric-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+    </style>
+</head>
+
+<body class="selection:bg-green-100">
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.reload()">
+                <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center"><span
+                        class="text-[--electric-green] font-bold text-xs">PM</span></div>
+                <h1 class="font-outfit font-bold text-xl tracking-tight">PC MAP <span
+                        class="ml-1 text-[10px] text-gray-400 font-normal">v2.3</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <nav class="hidden md:flex gap-8 text-sm font-medium">
+                    <a href="#" class="hover:text-black text-gray-400 transition-colors">홈</a>
+                </nav>
+                <button onclick="openPartnershipModal()"
+                    class="px-4 py-2 border border-gray-100 hover:border-gray-300 rounded-full text-xs font-bold font-outfit uppercase tracking-tighter transition-all">광고
+                    및 제휴 문의</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-12">
+        <!-- Hero Section -->
+        <section class="max-w-7xl mx-auto px-6 text-center mb-16">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-50 border border-green-100 text-[--electric-green] text-[11px] font-black mb-6 uppercase">
+                Verified Integrity Store Directory</div>
+            <h2 class="text-5xl md:text-7xl font-extrabold tracking-tighter mb-8 leading-[1.1]">허위 매장 없는 진짜 수리점,
+                <br /><span class="text-[--electric-green]">PC맵</span>
+            </h2>
+            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto font-medium">광고에 속지 마세요. PC맵은 직접 방문하여
+                검증한<br />우리 동네의 신뢰할 수 있는 수리점만 연결합니다.</p>
+        </section>
+
+        <!-- YouTube Guide Section -->
+        <section class="max-w-7xl mx-auto px-6 mb-24">
+            <div class="flex items-center gap-3 mb-8">
+                <h3 class="text-2xl font-bold tracking-tight">PC 수리 사기 피해 방지 가이드</h3><span
+                    class="px-2 py-0.5 bg-red-50 text-red-500 text-[10px] font-black rounded uppercase">Must
+                    Watch</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="video-card group bg-white rounded-[32px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl"
+                    onclick="openVideoModal('qor6cEVFS80')">
+                    <div class="relative aspect-video"><img
+                            src="https://img.youtube.com/vi/qor6cEVFS80/maxresdefault.jpg"
+                            class="w-full h-full object-cover">
+                        <div class="video-overlay absolute inset-0 flex items-center justify-center">
+                            <div
+                                class="w-16 h-16 bg-[--electric-green] rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                                <svg class="w-8 h-8 text-black fill-current" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-lg mb-2 group-hover:text-[--electric-green] transition-colors">출장 수리
+                            사기 실태 고발</h4>
+                        <p class="text-gray-400 text-sm">무료 진단을 빌미로 부품을 바꿔치기하거나 과다 청구하는 실제 사례 확인.</p>
+                    </div>
+                </div>
+                <div class="video-card group bg-white rounded-[32px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl"
+                    onclick="openVideoModal('-_KFzQof_WA')">
+                    <div class="relative aspect-video"><img
+                            src="https://img.youtube.com/vi/-_KFzQof_WA/maxresdefault.jpg"
+                            class="w-full h-full object-cover">
+                        <div class="video-overlay absolute inset-0 flex items-center justify-center">
+                            <div
+                                class="w-16 h-16 bg-[--electric-green] rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                                <svg class="w-8 h-8 text-black fill-current" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-lg mb-2 group-hover:text-[--electric-green] transition-colors">자주 당하는
+                            수리 사기 수법 3가지</h4>
+                        <p class="text-gray-400 text-sm">정상 부품을 불량으로 속이는 수법부터 소프트웨어 조작까지 확인.</p>
+                    </div>
+                </div>
+                <div class="video-card group bg-white rounded-[32px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl"
+                    onclick="openVideoModal('uJz9yrl7Q14')">
+                    <div class="relative aspect-video"><img
+                            src="https://img.youtube.com/vi/uJz9yrl7Q14/maxresdefault.jpg"
+                            class="w-full h-full object-cover">
+                        <div class="video-overlay absolute inset-0 flex items-center justify-center">
+                            <div
+                                class="w-16 h-16 bg-[--electric-green] rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                                <svg class="w-8 h-8 text-black fill-current" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-lg mb-2 group-hover:text-[--electric-green] transition-colors">충격! 수리
+                            중 랜섬웨어 설치 사례</h4>
+                        <p class="text-gray-400 text-sm">수리 업체에서 고의로 랜섬웨어를 설치하여 추가 비용을 요구한 실화.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Region Navigation -->
+        <section class="max-w-7xl mx-auto px-6 mb-16 space-y-8">
+            <div class="space-y-4">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">지역 선택 (시/도)</h3>
+                <div id="city-nav" class="region-container flex flex-wrap gap-2 md:gap-3"></div>
+            </div>
+            <div id="district-nav-container" class="space-y-4 pt-8 border-t border-gray-100">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">상세 구/군</h3>
+                <div id="district-nav" class="region-container flex flex-wrap gap-2"></div>
+            </div>
+        </section>
+
+        <!-- Store List -->
+        <section class="max-w-7xl mx-auto px-6">
+            <div id="store-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
+            <div id="empty-state"
+                class="hidden py-44 text-center bg-gray-50 rounded-[48px] border border-dashed border-gray-200">
+                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                    <span class="text-3xl">🧩</span>
+                </div>
+                <p class="text-gray-900 text-xl font-bold">해당 지역의 매장을 준비 중입니다.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="video-modal" class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div
+            class="modal-content relative w-full max-w-5xl aspect-video bg-black rounded-[32px] overflow-hidden shadow-2xl">
+            <button onclick="closeVideoModal()"
+                class="absolute top-6 right-6 z-10 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div id="player-container" class="w-full h-full"></div>
+        </div>
+    </div>
+
+    <!-- Partnership Modal (v2.3 Visual Refinement) -->
+    <div id="partnership-modal" class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="modal-content relative w-full max-w-lg bg-white rounded-[40px] p-10 shadow-2xl">
+            <button onclick="closePartnershipModal()" class="absolute top-8 right-8 text-gray-300 hover:text-black">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="mb-10">
+                <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center mb-6"><span
+                        class="text-2xl">🤝</span></div>
+                <h3 class="text-2xl font-black mb-6">PC MAP 제휴 및 입점 안내</h3>
+                <div class="space-y-4 mb-10">
+                    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <span
+                            class="w-6 h-6 flex items-center justify-center bg-white rounded-full text-[10px] font-black shadow-sm">01</span>
+                        <span class="text-sm font-bold text-gray-600">카카오톡 상담 신청</span>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <span
+                            class="w-6 h-6 flex items-center justify-center bg-white rounded-full text-[10px] font-black shadow-sm">02</span>
+                        <span class="text-sm font-bold text-gray-600">매장 검증 및 협의</span>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <span
+                            class="w-6 h-6 flex items-center justify-center bg-white rounded-full text-[10px] font-black shadow-sm">03</span>
+                        <span class="text-sm font-bold text-gray-600">등록 및 노출 시작</span>
+                    </div>
+                </div>
+                <p class="text-gray-400 text-xs text-center mb-6 font-medium">프리미엄 매장 등록 및 서비스 제휴 문의는 아래 버튼을 눌러주세요.</p>
+                <a href="https://open.kakao.com/o/sIng9Dfi" target="_blank"
+                    class="btn-kakao flex items-center justify-center gap-3 w-full py-5 rounded-[24px] text-[15px] font-black shadow-xl shadow-yellow-100">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 3c-4.97 0-9 3.185-9 7.115 0 2.558 1.712 4.81 4.348 6.151l-.81 2.969c-.063.232.204.415.39.291l3.5-2.292c.504.064 1.026.097 1.572.097 4.97 0 9-3.185 9-7.115S16.97 3 12 3z" />
+                    </svg>
+                    카카오톡 상담 연결
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Modal -->
+    <div id="legal-modal" class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div
+            class="modal-content relative w-full max-w-2xl bg-white rounded-[40px] p-10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <button onclick="closeLegalModal()" class="absolute top-8 right-8 text-gray-300 hover:text-black">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="mb-8">
+                <h3 id="legal-title" class="text-2xl font-black">법적 고지</h3>
+            </div>
+            <div id="legal-body" class="overflow-y-auto pr-4 text-sm leading-relaxed text-gray-500 whitespace-pre-wrap">
+                <!-- Content will be injected by JS -->
+            </div>
+            <div class="mt-8 pt-6 border-t border-gray-100">
+                <button onclick="closeLegalModal()"
+                    class="w-full py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold rounded-2xl transition-colors">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer v2.3 Redesign -->
+    <footer class="bg-gray-50 pt-24 pb-12 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <!-- Partnership CTA -->
+            <div class="mb-24">
+                <div
+                    class="w-16 h-16 bg-white rounded-3xl flex items-center justify-center mb-8 mx-auto shadow-sm border border-gray-100">
+                    <span class="text-3xl">🤝</span>
+                </div>
+                <h3 class="text-3xl font-black mb-8 tracking-tighter">PC MAP과 함께 성장하세요</h3>
+                <button onclick="openPartnershipModal()"
+                    class="px-10 py-5 bg-white border border-gray-200 hover:border-black rounded-full text-[15px] font-black transition-all shadow-sm hover:shadow-md">광고
+                    및 제휴 문의</button>
+            </div>
+
+            <!-- Absolute Bottom: Legal & Copyright -->
+            <div class="pt-12 border-t border-gray-200/60">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="flex gap-4 text-[10px] text-[#999] font-bold tracking-tight uppercase">
+                        <button onclick="openLegalModal('tos')" class="hover:text-black transition-colors">이용약관</button>
+                        <span class="text-gray-200">|</span>
+                        <button onclick="openLegalModal('privacy')"
+                            class="hover:text-black transition-colors">개인정보처리방침</button>
+                    </div>
+                    <p class="text-[9px] text-[#BBB] font-bold tracking-widest uppercase">© 2026 PC MAP. All rights
+                        reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- External Script Integration -->
+    <script src="script.js"></script>
+</body>
+
+</html>
