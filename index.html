@@ -112,32 +112,34 @@
 
         @keyframes pulse {
             0% {
-                box-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+                box-shadow: 0 0 8px rgba(46, 204, 113, 0.2);
             }
 
             50% {
-                box-shadow: 0 0 25px rgba(0, 255, 65, 0.7);
+                box-shadow: 0 0 18px rgba(46, 204, 113, 0.4);
             }
 
             100% {
-                box-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+                box-shadow: 0 0 8px rgba(46, 204, 113, 0.2);
             }
         }
 
         .premium-card {
-            background: linear-gradient(165deg, #fafffa 0%, #ffffff 50%, #f7fcf7 100%);
-            border: 2px solid #00FF41 !important;
-            animation: pulse 2.5s infinite ease-in-out;
+            background: #FFFFFF;
+            border: 2px solid #2ecc71 !important;
+            animation: pulse 3s infinite ease-in-out;
             position: relative;
         }
 
         .premium-badge {
-            background-color: #00FF41;
-            color: #000;
+            background-color: #2ecc71;
+            color: #fff;
             font-weight: 900;
             font-size: 11px;
-            box-shadow: 0 4px 15px rgba(0, 255, 65, 0.4);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 6px 14px;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            z-index: 20;
         }
 
         .premium-img-container {
@@ -146,7 +148,33 @@
             border-radius: 12px;
             overflow: hidden;
             margin-bottom: 1.5rem;
-            background: #f0fff4;
+            background: #FFFFFF !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .premium-img-container img {
+            background: #FFFFFF !important;
+            position: relative;
+            z-index: 11;
+        }
+
+        /* Default Placeholder for Missing Images */
+        .img-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-weight: 700;
+            font-size: 12px;
+            gap: 8px;
         }
 
         /* Force Wrap for 17+ regions */
@@ -158,6 +186,9 @@
 
         .store-card {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .nav-link {
@@ -181,6 +212,24 @@
         .nav-partnership-btn:hover {
             background-color: var(--electric-green);
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        /* PC MAP v2.6 - Hashtag Visibility */
+        .tag-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 4px;
+            background-color: #f0fff4;
+            color: var(--electric-green);
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .tag-badge:hover {
+            background-color: var(--electric-green);
+            color: black;
         }
     </style>
 </head>
@@ -216,7 +265,7 @@
             <h2 class="text-5xl md:text-7xl font-extrabold tracking-tighter mb-8 leading-[1.1]">허위 매장 없는 진짜 수리점,
                 <br /><span class="text-[--electric-green]">PC맵</span>
             </h2>
-            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto font-medium">광고에 속지 마세요. PC맵은 직접 방문하여
+            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto font-medium">광고에 속지 마세요. PC맵은 관리자가 직접
                 검증한<br />우리 동네의 신뢰할 수 있는 수리점만 연결합니다.</p>
         </section>
 

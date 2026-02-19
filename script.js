@@ -19,6 +19,12 @@ const REGION_MAP = {
     "울산": ["중구", "남구", "동구", "북구", "울주군"],
     "세종": ["세종특별자치시"],
     "강원": ["춘천시", "원주시", "강릉시", "동해시", "태백시", "속초시", "삼척시"],
+    "충북": ["청주시", "충주시", "제천시", "보은군", "옥천군", "영동군", "증평군", "진천군", "괴산군", "음성군", "단양군"],
+    "충남": ["천안시", "공주시", "보령시", "아산시", "서산시", "논산시", "계룡시", "당진시", "금산군", "부여군", "서천군", "청양군", "홍성군", "예산군", "태안군"],
+    "전북": ["전주시", "군산시", "익산시", "정읍시", "남원시", "김제시", "완주군", "진안군", "무주군", "장수군", "임실군", "순창군", "고창군", "부안군"],
+    "전남": ["목포시", "여수시", "순천시", "나주시", "광양시", "담양군", "곡성군", "구례군", "고흥군", "보성군", "화순군", "장흥군", "강진군", "해남군", "영암군", "무안군", "함평군", "영광군", "장성군", "완도군", "진도군", "신안군"],
+    "경북": ["포항시", "경주시", "김천시", "안동시", "구미시", "영주시", "영천시", "상주시", "문경시", "경산시", "의성군", "청송군", "영양군", "영덕군", "청도군", "고령군", "성주군", "칠곡군", "예천군", "봉화군", "울진군", "울릉군"],
+    "경남": ["창원시", "진주시", "통영시", "사천시", "김해시", "밀양시", "거제시", "양산시", "의령군", "함안군", "창녕군", "고성군", "남해군", "하동군", "산청군", "함양군", "거창군", "합천군"],
     "제주": ["제주시", "서귀포시"]
 };
 
@@ -64,7 +70,7 @@ let appData = {
 };
 
 let currentCity = "서울";
-let currentDistrict = "강남구";
+let currentDistrict = null; // Default to 'All'
 
 // --- Logic Helpers ---
 
@@ -80,6 +86,18 @@ function cleanURL(url) {
         return "https://" + trimmed;
     }
     return trimmed;
+}
+
+/**
+ * Fisher-Yates Shuffle Algorithm
+ * Randomizes array elements in-place
+ */
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
 
 function parseCSV(text) {
@@ -141,7 +159,7 @@ function renderCityChips() {
 
 function selectCity(city) {
     currentCity = city;
-    currentDistrict = REGION_MAP[city] ? REGION_MAP[city][0] : "";
+    currentDistrict = null; // Default to 'All'
     renderCityChips();
     updateDistrictNav();
     renderStores();
@@ -152,7 +170,13 @@ function updateDistrictNav() {
     if (!districtNav) return;
     const districts = REGION_MAP[currentCity];
     if (districts) {
-        districtNav.innerHTML = districts.map(district => `
+        // Prepend "전체" button
+        const allBtn = `
+            <button onclick="selectDistrict(null)" class="chip px-4 py-2 rounded-xl border border-transparent text-[13px] font-bold text-gray-400 bg-gray-50 ${!currentDistrict ? 'sub-chip-active' : ''}">
+                전체
+            </button>
+        `;
+        districtNav.innerHTML = allBtn + districts.map(district => `
             <button onclick="selectDistrict('${district}')" class="chip px-4 py-2 rounded-xl border border-transparent text-[13px] font-bold text-gray-400 bg-gray-50 ${currentDistrict === district ? 'sub-chip-active' : ''}">
                 ${district}
             </button>
@@ -173,10 +197,12 @@ function renderStores() {
     const emptyState = document.getElementById('empty-state');
     if (!storeGrid || !emptyState) return;
 
-    const filtered = appData.stores.filter(s =>
+    let filtered = appData.stores.filter(s =>
         s.region === currentCity && (currentDistrict ? s.subRegion === currentDistrict : true)
     );
 
+    // Filtered stores are first shuffled for fairness, then sorted by premium status
+    filtered = shuffleArray([...filtered]);
     filtered.sort((a, b) => (b.isPremium === true ? 1 : 0) - (a.isPremium === true ? 1 : 0));
 
     if (filtered.length === 0) {
@@ -188,39 +214,52 @@ function renderStores() {
     storeGrid.classList.remove('hidden');
     emptyState.classList.add('hidden');
 
-    storeGrid.innerHTML = filtered.map(store => `
-        <div class="store-card relative flex flex-col rounded-[40px] p-8 bg-white border border-gray-100 ${store.isPremium ? 'premium-card' : ''}">
-            ${store.isPremium ? `
-                <div class="absolute top-6 right-8 flex items-center gap-1.5 px-3 py-1.5 rounded-full premium-badge">
+    storeGrid.innerHTML = filtered.map(store => {
+        // Strict thumb/premium check
+        const isPremium = store.isPremium === true || store.isPremium === "TRUE";
+        const rawThumb = store.thumbnailUrl ? store.thumbnailUrl.trim() : "";
+        const isInvalid = !rawThumb || rawThumb.toUpperCase() === "NULL" || rawThumb.toUpperCase() === "UNDEFINED" || rawThumb === "";
+
+        const imgDisplay = isInvalid
+            ? `<div class="img-placeholder"><span class="text-3xl">🖥️</span><span class="mt-1">이미지 준비 중</span></div>`
+            : `<img src="${rawThumb}" class="w-full h-full object-cover block" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="img-placeholder" style="display: none;"><span class="text-3xl">🖥️</span><span class="mt-1">이미지 준비 중</span></div>`;
+
+        return `
+        <div class="store-card relative flex flex-col rounded-[40px] p-8 bg-white border border-gray-100 ${isPremium ? 'premium-card' : ''}">
+            ${isPremium ? `
+                <div class="absolute top-10 right-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full premium-badge">
                     <span>⭐</span>
                     <span class="font-black">TOP PREMIUM</span>
                 </div>
             ` : ''}
             
-            <div class="${store.isPremium ? 'premium-img-container' : 'mb-6 aspect-video rounded-2xl overflow-hidden bg-gray-50 shadow-inner'} border border-gray-50">
-                <img src="${store.thumbnailUrl || 'https://via.placeholder.com/600x400?text=PC+MAP'}" class="w-full h-full object-cover">
+            <div class="${isPremium ? 'premium-img-container' : 'mb-6 aspect-video rounded-2xl overflow-hidden bg-gray-50 shadow-inner'} border border-gray-50 relative">
+                ${imgDisplay}
             </div>
 
             <div class="mb-4">
                 <h3 class="font-extrabold text-2xl tracking-tight mb-2">${store.name}</h3>
+                ${isPremium ? `
                 <div class="flex items-center gap-1.5 self-start px-2 py-0.5 bg-green-50 rounded mb-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#00FF41]"></span>
-                    <span class="text-[10px] font-black text-[#00FF41] uppercase tracking-tighter">파트너 검증</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#2ecc71]"></span>
+                    <span class="text-[10px] font-black text-[#2ecc71] uppercase tracking-tighter">파트너 검증</span>
                 </div>
+                ` : ''}
                 <span class="text-xs text-gray-400 font-bold block">${store.address}</span>
             </div>
             
             <p class="text-gray-500 text-[14px] mb-6 leading-relaxed font-medium line-clamp-2">${store.description}</p>
             
             <div class="flex flex-wrap gap-2 mb-8 mt-auto">
-                ${store.tags.map(t => `<span class="px-2 py-1 bg-green-50 text-[10px] text-[--electric-green] font-bold rounded">#${t}</span>`).join('')}
+                ${store.tags.map(t => `<span class="tag-badge">#${t}</span>`).join('')}
             </div>
             
-            <button onclick="window.open('${cleanURL(store.naverLink)}', '_blank')" class="visit-btn block w-full py-5 rounded-[24px] text-center text-[15px] font-black ${store.isPremium ? 'bg-[#00FF41] text-black shadow-lg shadow-green-400/20' : 'bg-[#1D1D1F] text-white hover:bg-black'}">
+            <button onclick="window.open('${cleanURL(store.naverLink)}', '_blank')" class="visit-btn block w-full py-5 rounded-[24px] text-center text-[15px] font-black ${isPremium ? 'bg-[#2ecc71] text-white shadow-lg shadow-green-400/20' : 'bg-[#1D1D1F] text-white hover:bg-black'}">
                 네이버 플레이스 방문하기
             </button>
         </div>
-    `).join('');
+`;
+    }).join('');
 }
 
 // --- Modals ---
