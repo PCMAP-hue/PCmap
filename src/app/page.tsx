@@ -24,11 +24,11 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-slate-50">
       <main className="flex-1">
         <HeroSection />
-        <SearchSection 
+        <SearchSection
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
-        <RegionSection 
+        <RegionSection
           selectedProvince={selectedProvince}
           selectedDistrict={selectedDistrict}
           onProvinceChange={(p) => {
@@ -42,9 +42,9 @@ export default function Home() {
           }}
         />
         <div ref={storeListRef} className="scroll-mt-24">
-          <StoreList 
-            selectedProvince={selectedProvince} 
-            selectedDistrict={selectedDistrict} 
+          <StoreList
+            selectedProvince={selectedProvince}
+            selectedDistrict={selectedDistrict}
             searchQuery={searchQuery}
           />
         </div>
@@ -53,3 +53,4 @@ export default function Home() {
     </div>
   );
 }
+
