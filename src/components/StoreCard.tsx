@@ -1,8 +1,23 @@
+"use client";
+
 import { MapPin, MonitorPlay, Crown } from "lucide-react";
 import { type Store } from "@/lib/storeData";
+import { supabase } from "@/lib/supabase";
 
 export default function StoreCard({ store }: { store: Store }) {
   const isPremium = store.isPremium;
+
+  const handleLinkClick = () => {
+    // Fire and forget the click track
+    supabase.rpc('increment_click_count', { target_store_id: store.id })
+      .then(({ error }) => {
+        if (error) {
+          // Fallback if RPC does not exist
+          const currentCount = store.click_count || 0;
+          supabase.from('stores').update({ click_count: currentCount + 1 }).eq('id', store.id).then();
+        }
+      });
+  };
 
   return (
     <div 
@@ -70,6 +85,7 @@ export default function StoreCard({ store }: { store: Store }) {
           href={store.naverUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleLinkClick}
           className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl font-bold text-sm md:text-base transition-colors flex items-center justify-center text-center mt-auto shadow-sm"
         >
           네이버 플레이스 보기
