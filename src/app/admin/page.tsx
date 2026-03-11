@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { type Store } from "@/lib/storeData";
-import { Lock, LayoutDashboard, Store as StoreIcon, Plus, Edit, Trash2, LogOut, RefreshCw, BarChart, Crown, X } from "lucide-react";
+import { provinceList, regions } from "@/lib/regionData";
+import { Lock, LayoutDashboard, Store as StoreIcon, Plus, Edit, Trash2, LogOut, RefreshCw, BarChart, Crown, X, Search, Filter } from "lucide-react";
 
 const ADMIN_PIN = "265422";
 
@@ -15,6 +16,11 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "stores">("dashboard");
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Filter logic
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("전체");
+  const [selectedDistrict, setSelectedDistrict] = useState("전체");
 
   // Modal logic
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,6 +76,28 @@ export default function AdminPage() {
   }, [stores]);
 
   const totalClicks = useMemo(() => stores.reduce((sum, s) => sum + (s.click_count || 0), 0), [stores]);
+
+  const filteredStores = useMemo(() => {
+    return stores.filter(store => {
+      if (searchQuery.trim() !== "") {
+        const query = searchQuery.toLowerCase().trim();
+        const matchesSearch = 
+          store.name.toLowerCase().includes(query) ||
+          store.address.toLowerCase().includes(query) ||
+          store.province.toLowerCase().includes(query) ||
+          store.district.toLowerCase().includes(query);
+        
+        if (!matchesSearch) return false;
+      }
+
+      if (selectedProvince !== "전체") {
+        if (store.province !== selectedProvince) return false;
+        if (selectedDistrict !== "전체" && store.district !== selectedDistrict) return false;
+      }
+
+      return true;
+    });
+  }, [stores, searchQuery, selectedProvince, selectedDistrict]);
 
   // CRUD
   const handleDelete = async (id: string) => {
@@ -324,6 +352,55 @@ export default function AdminPage() {
                 </button>
               </header>
 
+              {/* Filters Section */}
+              <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center">
+                {/* Search */}
+                <div className="relative w-full md:w-96 shrink-0">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-slate-400" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="매장명, 주소, 지역 검색..."
+                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white transition-all text-sm font-medium"
+                  />
+                </div>
+                
+                {/* Region Selectors */}
+                <div className="flex w-full gap-3 overflow-x-auto pb-1 md:pb-0">
+                  <div className="relative shrink-0">
+                    <select
+                      value={selectedProvince}
+                      onChange={(e) => {
+                        setSelectedProvince(e.target.value);
+                        setSelectedDistrict("전체");
+                      }}
+                      className="appearance-none pl-4 pr-10 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 font-semibold text-slate-700 text-sm cursor-pointer transition-colors"
+                    >
+                      {provinceList.map((prov) => (
+                        <option key={prov} value={prov}>{prov}</option>
+                      ))}
+                    </select>
+                    <Filter className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  </div>
+                  
+                  {selectedProvince !== "전체" && regions[selectedProvince]?.length > 0 && (
+                    <select
+                      value={selectedDistrict}
+                      onChange={(e) => setSelectedDistrict(e.target.value)}
+                      className="appearance-none pl-4 pr-10 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 font-semibold text-slate-700 text-sm cursor-pointer transition-colors shrink-0 animate-in fade-in"
+                    >
+                      <option value="전체">{selectedProvince} 전체</option>
+                      {regions[selectedProvince].map((dist) => (
+                        <option key={dist} value={dist}>{dist}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              </div>
+
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[800px]">
@@ -336,7 +413,7 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {stores.map(store => (
+                      {filteredStores.map(store => (
                         <tr key={store.id} className="hover:bg-slate-50 transition-colors group">
                           <td className="p-4 flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${store.isPremium ? 'bg-amber-100 text-amber-500' : 'bg-slate-100 text-slate-400'}`}>
@@ -368,9 +445,9 @@ export default function AdminPage() {
                           </td>
                         </tr>
                       ))}
-                      {stores.length === 0 && (
+                      {filteredStores.length === 0 && (
                         <tr>
-                          <td colSpan={4} className="p-8 text-center text-slate-400">등록된 매장이 없습니다.</td>
+                          <td colSpan={4} className="p-8 text-center text-slate-400">조건에 맞는 매장이 없습니다.</td>
                         </tr>
                       )}
                     </tbody>
