@@ -9,4 +9,5 @@ export interface Store {
   isPremium?: boolean;
   thumbnailUrl?: string;
   click_count?: number;
+  premium_end_date?: string | null;
 }

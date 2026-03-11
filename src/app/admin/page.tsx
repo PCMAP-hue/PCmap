@@ -34,7 +34,9 @@ export default function AdminPage() {
     badges: "",
     naverUrl: "",
     isPremium: false,
-    thumbnailUrl: ""
+    thumbnailUrl: "",
+    premiumMonths: 1, // Default to 1 month
+    premium_end_date: null as string | null
   });
 
   const handleLogin = (e: React.FormEvent) => {
@@ -117,7 +119,9 @@ export default function AdminPage() {
         badges: store.badges.join(", "),
         naverUrl: store.naverUrl,
         isPremium: store.isPremium || false,
-        thumbnailUrl: store.thumbnailUrl || ""
+        thumbnailUrl: store.thumbnailUrl || "",
+        premiumMonths: 1,
+        premium_end_date: store.premium_end_date || null
       });
     } else {
       setEditingStore(null);
@@ -129,7 +133,9 @@ export default function AdminPage() {
         badges: "",
         naverUrl: "",
         isPremium: false,
-        thumbnailUrl: ""
+        thumbnailUrl: "",
+        premiumMonths: 1,
+        premium_end_date: null
       });
     }
     setIsModalOpen(true);
@@ -146,7 +152,7 @@ export default function AdminPage() {
     // Parse badges
     const parsedBadges = formData.badges.split(",").map(b => b.trim()).filter(b => b !== "");
 
-    const payload = {
+    const payload: any = {
       name: formData.name,
       address: formData.address,
       province: formData.province,
@@ -154,8 +160,19 @@ export default function AdminPage() {
       badges: parsedBadges,
       naverUrl: formData.naverUrl,
       isPremium: formData.isPremium,
-      thumbnailUrl: formData.thumbnailUrl
+      thumbnailUrl: formData.thumbnailUrl,
     };
+
+    // Handle premium expiration date
+    if (formData.isPremium) {
+      // Calculate new end date based on selected months
+      const now = new Date();
+      now.setMonth(now.getMonth() + Number(formData.premiumMonths));
+      payload.premium_end_date = now.toISOString();
+    } else {
+      // If no longer premium, nullify the date
+      payload.premium_end_date = null;
+    }
 
     if (editingStore) {
       // update
@@ -282,7 +299,12 @@ export default function AdminPage() {
                       <StoreIcon className="w-5 h-5" />
                     </div>
                   </div>
-                  <h3 className="text-4xl font-extrabold text-slate-800">{stores.length}</h3>
+                  <div className="flex items-baseline gap-2">
+                    <h3 className="text-4xl font-extrabold text-slate-800">{stores.length}</h3>
+                    <span className="text-sm font-bold text-amber-500 tracking-tight">
+                      (프리미엄 {stores.filter(s => s.isPremium && (!s.premium_end_date || new Date(s.premium_end_date).getTime() > Date.now())).length})
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -419,9 +441,28 @@ export default function AdminPage() {
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${store.isPremium ? 'bg-amber-100 text-amber-500' : 'bg-slate-100 text-slate-400'}`}>
                               {store.isPremium ? <Crown className="w-5 h-5" /> : <StoreIcon className="w-5 h-5" />}
                             </div>
-                            <div>
-                              <p className="font-bold text-slate-800">{store.name}</p>
-                              <p className="text-xs text-slate-400 max-w-[200px] truncate">{store.address}</p>
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                                <p className="font-bold text-slate-800 truncate">{store.name}</p>
+                                {store.isPremium && (
+                                  store.premium_end_date ? (
+                                    new Date(store.premium_end_date).getTime() > Date.now() ? (
+                                      <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
+                                        광고 중 (~{new Date(store.premium_end_date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })})
+                                      </span>
+                                    ) : (
+                                      <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
+                                        광고 만료 (종료일: {new Date(store.premium_end_date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })})
+                                      </span>
+                                    )
+                                  ) : (
+                                    <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
+                                      광고 중 (종료일 미지정)
+                                    </span>
+                                  )
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-400 truncate">{store.address}</p>
                             </div>
                           </td>
                           <td className="p-4">
@@ -479,30 +520,30 @@ export default function AdminPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700">매장명</label>
-                  <input required placeholder="예: 컴수리연구소" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                  <input required placeholder="예: 컴수리연구소" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700">네이버 플레이스 URL</label>
-                  <input required type="url" placeholder="https://m.place.naver.com/..." className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.naverUrl} onChange={e => setFormData({...formData, naverUrl: e.target.value})} />
+                  <input required type="url" placeholder="https://m.place.naver.com/..." className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.naverUrl} onChange={e => setFormData({...formData, naverUrl: e.target.value})} />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700">도/광역시 (Province)</label>
-                  <input required placeholder="예: 서울" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.province} onChange={e => setFormData({...formData, province: e.target.value})} />
+                  <input required placeholder="예: 서울" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.province} onChange={e => setFormData({...formData, province: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700">시/군/구 (District)</label>
-                  <input required placeholder="예: 강남구" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} />
+                  <input required placeholder="예: 강남구" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-semibold text-slate-700">상세 주소</label>
-                  <input required placeholder="전체 주소 입력" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+                  <input required placeholder="전체 주소 입력" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-semibold text-slate-700">배지 (콤마[,]로 구분)</label>
-                  <input placeholder="단골많음, 조립전문, 리뷰이벤트" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.badges} onChange={e => setFormData({...formData, badges: e.target.value})} />
+                  <input placeholder="단골많음, 조립전문, 리뷰이벤트" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.badges} onChange={e => setFormData({...formData, badges: e.target.value})} />
                 </div>
 
                 <div className="space-y-2 md:col-span-2 p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
@@ -520,9 +561,46 @@ export default function AdminPage() {
                 </div>
 
                 {formData.isPremium && (
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-semibold text-slate-700">16:9 썸네일 URL (프리미엄 전용)</label>
-                    <input placeholder="https://..." className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.thumbnailUrl} onChange={e => setFormData({...formData, thumbnailUrl: e.target.value})} />
+                  <div className="space-y-4 md:col-span-2">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700">16:9 썸네일 URL (프리미엄 전용)</label>
+                      <input placeholder="https://..." className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.thumbnailUrl} onChange={e => setFormData({...formData, thumbnailUrl: e.target.value})} />
+                    </div>
+                    
+                    <div className="space-y-2 bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                      <label className="text-sm font-semibold text-slate-700 flex flex-col gap-1">
+                        <div className="flex justify-between items-center">
+                          <span>프리미엄 광고 적용 기간</span>
+                          {formData.premium_end_date && editingStore?.isPremium && (
+                            <span className="text-amber-600 font-bold text-xs bg-amber-50 px-2 py-1 rounded-md border border-amber-100">
+                              기존 만료일: {new Date(formData.premium_end_date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </span>
+                          )}
+                        </div>
+                      </label>
+                      <select 
+                        className="w-full bg-white border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium text-slate-700"
+                        value={formData.premiumMonths}
+                        onChange={e => setFormData({...formData, premiumMonths: parseInt(e.target.value)})}
+                      >
+                        <option value={1}>1개월 (결제일로부터 1개월 후 자동 해제)</option>
+                        <option value={3}>3개월 (결제일로부터 3개월 후 자동 해제)</option>
+                        <option value={6}>6개월 (결제일로부터 6개월 후 자동 해제)</option>
+                        <option value={12}>12개월 (결제일로부터 1년 후 자동 해제)</option>
+                      </select>
+                      <div className="text-emerald-600 font-bold text-[13px] mt-2 text-right">
+                        ↳ 선택 시 만료 예정일: {
+                          (() => {
+                            const d = new Date();
+                            d.setMonth(d.getMonth() + formData.premiumMonths);
+                            return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+                          })()
+                        }
+                      </div>
+                      <p className="text-xs text-slate-500 mt-2 bg-slate-100/50 p-2 rounded-lg">
+                        ⚠️ 저장 버튼을 누르는 순간부터 위에서 선택한 기간이 누적 합산되는 것이 아니라 <strong className="text-slate-700">새롭게 계산되어 만료일이 갱신</strong>됩니다. (이전 만료일 무시)
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>

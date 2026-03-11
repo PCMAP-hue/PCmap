@@ -77,8 +77,22 @@ export default function StoreList({
   // Shuffle and Group Logic (Premium First)
   // Processed synchronously with rendering to prevent Framer Motion animation glitches
   const displayStores = useMemo(() => {
-    const premiums = filteredStores.filter(s => s.isPremium);
-    const regulars = filteredStores.filter(s => !s.isPremium);
+    const now = new Date().getTime();
+
+    // Map through stores and check expiration
+    const processedStores = filteredStores.map(store => {
+      let isTrulyPremium = store.isPremium;
+      if (isTrulyPremium && store.premium_end_date) {
+        const endDate = new Date(store.premium_end_date).getTime();
+        if (now > endDate) {
+          isTrulyPremium = false; // Expired
+        }
+      }
+      return { ...store, isPremium: isTrulyPremium };
+    });
+
+    const premiums = processedStores.filter(s => s.isPremium);
+    const regulars = processedStores.filter(s => !s.isPremium);
 
     // Fisher-Yates array shuffle
     const shuffleArray = (array: Store[]) => {
