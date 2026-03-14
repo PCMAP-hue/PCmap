@@ -118,7 +118,7 @@ export const districtSlugMap: Record<string, string> = {
   "강남구": "gangnam",
   "강동구": "gangdong",
   "강북구": "gangbuk",
-  "강서구": "gangseo",
+  "강서구": "gangseo", // 서울 강서구
   "관악구": "gwanak",
   "광진구": "gwangjin",
   "구로구": "guro",
@@ -138,10 +138,45 @@ export const districtSlugMap: Record<string, string> = {
   "용산구": "yongsan",
   "은평구": "eunpyeong",
   "종로구": "jongno",
-  "중구": "jung-gu",
   "중랑구": "jungnang",
+  // 인천
+  "계양구": "gyeyang",
+  "남동구": "namdong",
+  "미추홀구": "michuhol",
+  "부평구": "bupyeong",
+  "연수구": "yeonsu",
+  "강화군": "ganghwa",
+  "옹진군": "ongjin",
+  // 대전
+  "대덕구": "daedeok",
+  "유성구": "yuseong",
+  // 광주
+  "광산구": "gwangsan",
+  // 대구
+  "달서구": "dalseo",
+  "수성구": "suseong",
+  "달성군": "dalseong",
+  "군위군": "gunwi",
   // 부산
+  "금정구": "geumjeong",
+  "기장군": "gijang",
+  "동래구": "dongnae",
+  "부산진구": "busanjin",
+  "사상구": "sasang",
+  "사하구": "saha",
+  "수영구": "suyeong",
+  "연제구": "yeonje",
+  "영도구": "yeongdo",
   "해운대구": "haeundae",
+  // 제주
+  "제주시": "jeju-si",
+  "서귀포시": "seogwipo",
+  // 공통 구 이름 (중복 제거)
+  "중구": "jung-gu",
+  "동구": "dong-gu",
+  "서구": "seo-gu",
+  "남구": "nam-gu",
+  "북구": "buk-gu",
 };
 
 // 슬러그로부터 구/군 한글명 가져오기
