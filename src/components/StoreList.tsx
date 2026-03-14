@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { type Store } from "@/lib/storeData";
-import { supabase } from "@/lib/supabase";
 import StoreCard from "@/components/StoreCard";
 
 // Using the same animation logic from RegionSection for consistency
@@ -21,81 +20,88 @@ const itemDefaults = {
 };
 
 export default function StoreList({ 
+  allStores,
+  loading,
   selectedProvince, 
   selectedDistrict,
   searchQuery
 }: { 
+  allStores: Store[];
+  loading: boolean;
   selectedProvince: string;
   selectedDistrict: string;
   searchQuery: string;
 }) {
-  const [allStores, setAllStores] = useState<Store[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Initial Fetch from Supabase
-  useEffect(() => {
-    async function fetchStores() {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("stores")
-        .select("*");
-      
-      if (error) {
-        console.error("Error fetching stores:", error);
-      } else if (data) {
-        setAllStores(data as Store[]);
-      }
-      setLoading(false);
-    }
-
-    fetchStores();
-  }, []);
-
-  // Filter Logic (Memoized so we only recalculate when dependencies change)
+  // Filter Logic
   const filteredStores = useMemo(() => {
-    return allStores.filter(store => {
+    if (loading) return [];
+    
+    const result = allStores.filter(store => {
+      // Safety checks for basic data
+      const name = store.name || "";
+      const address = store.address || "";
+      const province = store.province || "";
+      const district = store.district || "";
+
+      // 1. Search Query Filter
       if (searchQuery.trim() !== "") {
         const query = searchQuery.toLowerCase().trim();
         const matchesSearch = 
-          store.name.toLowerCase().includes(query) ||
-          store.address.toLowerCase().includes(query) ||
-          store.province.toLowerCase().includes(query) ||
-          store.district.toLowerCase().includes(query);
+          name.toLowerCase().includes(query) ||
+          address.toLowerCase().includes(query) ||
+          province.toLowerCase().includes(query) ||
+          district.toLowerCase().includes(query);
         
         if (!matchesSearch) return false;
       }
 
-      if (selectedProvince !== "전체") {
-        if (store.province !== selectedProvince) return false;
-        if (selectedDistrict !== "전체" && store.district !== selectedDistrict) return false;
+      // 2. Region Filter
+      if (!selectedProvince || selectedProvince === "전체") return true;
+
+      const storeProvince = province.trim();
+      const storeDistrict = district.trim();
+      const targetProvince = selectedProvince.trim();
+      
+      // Province Matching (Flexible)
+      const provinceMatch = storeProvince.includes(targetProvince) || targetProvince.includes(storeProvince);
+      if (!provinceMatch) return false;
+      
+      // District Matching (Flexible)
+      if (selectedDistrict && selectedDistrict !== "전체") {
+        const targetDistrict = selectedDistrict.trim();
+        const districtMatch = storeDistrict.includes(targetDistrict) || targetDistrict.includes(storeDistrict);
+        if (!districtMatch) return false;
       }
 
       return true;
     });
-  }, [allStores, searchQuery, selectedProvince, selectedDistrict]);
 
-  // Shuffle and Group Logic (Premium First)
-  // Processed synchronously with rendering to prevent Framer Motion animation glitches
+    console.log(`Filtered: ${result.length} stores (Filter: ${selectedProvince} > ${selectedDistrict})`);
+    return result;
+  }, [allStores, searchQuery, selectedProvince, selectedDistrict, loading]);
+
+  // Shuffle and Group Logic
   const displayStores = useMemo(() => {
     const now = new Date().getTime();
 
-    // Map through stores and check expiration
     const processedStores = filteredStores.map(store => {
-      let isTrulyPremium = store.isPremium;
+      let isTrulyPremium = !!store.isPremium;
       if (isTrulyPremium && store.premium_end_date) {
         const endDate = new Date(store.premium_end_date).getTime();
-        if (now > endDate) {
-          isTrulyPremium = false; // Expired
-        }
+        if (now > endDate) isTrulyPremium = false;
       }
-      return { ...store, isPremium: isTrulyPremium };
+      
+      // Ensure badges is always an array
+      const safeBadges = Array.isArray(store.badges) ? store.badges : [];
+      
+      return { ...store, isPremium: isTrulyPremium, badges: safeBadges };
     });
 
     const premiums = processedStores.filter(s => s.isPremium);
     const regulars = processedStores.filter(s => !s.isPremium);
 
-    // Fisher-Yates array shuffle
-    const shuffleArray = (array: Store[]) => {
+    const shuffleArray = (array: any[]) => {
       const result = [...array];
       for (let i = result.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -104,10 +110,7 @@ export default function StoreList({
       return result;
     };
 
-    return [
-      ...shuffleArray(premiums), 
-      ...shuffleArray(regulars)
-    ];
+    return [...shuffleArray(premiums), ...shuffleArray(regulars)];
   }, [filteredStores]);
 
   if (loading) {

@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { regions, provinceList } from "@/lib/regionData";
+import { regions, provinceList, getSlugFromRegion } from "@/lib/regionData";
 import { MapPin } from "lucide-react";
 
 interface RegionSectionProps {
@@ -18,8 +18,28 @@ export default function RegionSection({
   onProvinceChange,
   onDistrictChange
 }: RegionSectionProps) {
+  const router = useRouter();
+
   const handleProvinceClick = (province: string) => {
     onProvinceChange(province);
+    const slug = getSlugFromRegion(province, true);
+    if (province === "전체") {
+      router.push("/", { scroll: false });
+    } else {
+      router.push(`/region/${slug}`, { scroll: false });
+    }
+  };
+
+  const handleDistrictClick = (district: string) => {
+    onDistrictChange(district);
+    const provinceSlug = getSlugFromRegion(selectedProvince, true);
+    const districtSlug = getSlugFromRegion(district, false);
+    
+    if (district === "전체") {
+      router.push(`/region/${provinceSlug}`, { scroll: false });
+    } else {
+      router.push(`/region/${provinceSlug}/${districtSlug}`, { scroll: false });
+    }
   };
 
   const currentDistricts = regions[selectedProvince as keyof typeof regions] || [];
@@ -74,7 +94,7 @@ export default function RegionSection({
               <div className="p-6 md:p-8 flex flex-wrap items-center justify-center gap-2.5 md:gap-3">
                 {/* Always include '전체' for districts too */}
                 <button
-                  onClick={() => onDistrictChange("전체")}
+                  onClick={() => handleDistrictClick("전체")}
                   className={`
                     px-4 py-2 rounded-full font-semibold text-sm md:text-base transition-colors border
                     ${selectedDistrict === "전체"
@@ -90,7 +110,7 @@ export default function RegionSection({
                   return (
                     <button
                       key={district}
-                      onClick={() => onDistrictChange(district)}
+                      onClick={() => handleDistrictClick(district)}
                       className={`
                         px-4 py-2 rounded-full font-semibold text-sm md:text-base transition-colors border
                         ${isSelected

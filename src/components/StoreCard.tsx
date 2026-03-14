@@ -69,7 +69,7 @@ export default function StoreCard({ store }: { store: Store }) {
 
           {/* Badges */}
           <div className="flex flex-wrap gap-2 mb-6">
-            {store.badges.map((badge, idx) => (
+            {(store.badges || []).map((badge, idx) => (
               <span
                 key={idx}
                 className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-xs md:text-sm font-semibold tracking-wide"
