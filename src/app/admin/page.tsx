@@ -7,6 +7,10 @@ import { provinceList, regions } from "@/lib/regionData";
 import { Lock, LayoutDashboard, Store as StoreIcon, Plus, Edit, Trash2, LogOut, RefreshCw, BarChart, Crown, X, Search, Filter } from "lucide-react";
 
 const ADMIN_PIN = "265422";
+const PRESET_BADGES = [
+  "컴퓨터수리", "노트북수리", "프로그램", "리뷰이벤트", 
+  "조립PC", "견적상담", "조립대행", "리뷰우수"
+];
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,7 +35,7 @@ export default function AdminPage() {
     address: "",
     province: "",
     district: "",
-    badges: "",
+    badges: [] as string[],
     naverUrl: "",
     isPremium: false,
     thumbnailUrl: "",
@@ -116,7 +120,7 @@ export default function AdminPage() {
         address: store.address,
         province: store.province,
         district: store.district,
-        badges: store.badges.join(", "),
+        badges: store.badges || [],
         naverUrl: store.naverUrl,
         isPremium: store.isPremium || false,
         thumbnailUrl: store.thumbnailUrl || "",
@@ -130,7 +134,7 @@ export default function AdminPage() {
         address: "",
         province: "",
         district: "",
-        badges: "",
+        badges: [],
         naverUrl: "",
         isPremium: false,
         thumbnailUrl: "",
@@ -149,15 +153,12 @@ export default function AdminPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Parse badges
-    const parsedBadges = formData.badges.split(",").map(b => b.trim()).filter(b => b !== "");
-
     const payload: any = {
       name: formData.name,
       address: formData.address,
       province: formData.province,
       district: formData.district,
-      badges: parsedBadges,
+      badges: formData.badges,
       naverUrl: formData.naverUrl,
       isPremium: formData.isPremium,
       thumbnailUrl: formData.thumbnailUrl,
@@ -599,9 +600,58 @@ export default function AdminPage() {
                   <input required placeholder="전체 주소 입력" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-semibold text-slate-700">배지 (콤마[,]로 구분)</label>
-                  <input placeholder="단골많음, 조립전문, 리뷰이벤트" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.badges} onChange={e => setFormData({...formData, badges: e.target.value})} />
+                <div className="space-y-4 md:col-span-2 p-5 bg-slate-50 rounded-2xl border border-slate-200 shadow-inner mt-2">
+                  <div className="space-y-3">
+                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                      매장 배지 선택 (중복 선택 가능)
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {PRESET_BADGES.map((badge) => {
+                        const isSelected = formData.badges.includes(badge);
+                        return (
+                          <button
+                            key={badge}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                setFormData({
+                                  ...formData,
+                                  badges: formData.badges.filter(b => b !== badge)
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  badges: [...formData.badges, badge]
+                                });
+                              }
+                            }}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
+                              isSelected
+                                ? "bg-emerald-500 text-white shadow-md shadow-emerald-200 scale-105"
+                                : "bg-white text-slate-600 border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
+                            }`}
+                          >
+                            #{badge}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
+                  {/* Selected badges display */}
+                  <div className="pt-3 border-t border-slate-200 flex flex-wrap gap-2 items-center">
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">선택됨:</p>
+                    {formData.badges.length > 0 ? (
+                      formData.badges.map(b => (
+                        <span key={b} className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100">
+                          {b}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-slate-300 italic">선택된 배지 없음</span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 md:col-span-2 p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
