@@ -527,13 +527,71 @@ export default function AdminPage() {
                   <input required type="url" placeholder="https://m.place.naver.com/..." className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.naverUrl} onChange={e => setFormData({...formData, naverUrl: e.target.value})} />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">도/광역시 (Province)</label>
-                  <input required placeholder="예: 서울" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.province} onChange={e => setFormData({...formData, province: e.target.value})} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">시/군/구 (District)</label>
-                  <input required placeholder="예: 강남구" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} />
+                {/* 지역 선택 UI 개선 */}
+                <div className="space-y-4 md:col-span-2 p-5 bg-slate-50 rounded-2xl border border-slate-200 shadow-inner">
+                  <div className="space-y-3">
+                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                      도/광역시 선택
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {provinceList.filter(p => p !== "전체").map(p => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, province: p, district: "" })}
+                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                            formData.province === p 
+                              ? "bg-emerald-500 text-white shadow-md shadow-emerald-200 scale-105" 
+                              : "bg-white text-slate-600 border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {formData.province && regions[formData.province] && regions[formData.province].length > 0 && (
+                    <div className="space-y-3 pt-4 border-t border-slate-200 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                        시/군/구 선택
+                      </label>
+                      <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-1">
+                        {regions[formData.province].map(d => (
+                          <button
+                            key={d}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, district: d })}
+                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
+                              formData.district === d 
+                                ? "bg-blue-500 text-white shadow-sm scale-105" 
+                                : "bg-white text-slate-500 border border-slate-200 hover:border-blue-300 hover:bg-blue-50"
+                            }`}
+                          >
+                            {d}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Hidden inputs for form validation if needed, or informative text */}
+                  <div className="flex gap-4 mt-2">
+                    <div className="flex-1">
+                      <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">선택된 도/광역시</p>
+                      <div className="bg-white border border-slate-200 p-2 rounded-lg text-sm font-bold text-slate-700 min-h-[40px] flex items-center px-3">
+                        {formData.province || <span className="text-slate-300 font-normal italic">미선택</span>}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">선택된 시/군/구</p>
+                      <div className="bg-white border border-slate-200 p-2 rounded-lg text-sm font-bold text-slate-700 min-h-[40px] flex items-center px-3">
+                        {formData.district || <span className="text-slate-300 font-normal italic">미선택</span>}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
