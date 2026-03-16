@@ -81,6 +81,15 @@ export default function StoreList({
     return result;
   }, [allStores, searchQuery, selectedProvince, selectedDistrict, loading]);
 
+  // Pagination state
+  const INITIAL_VISIBLE_STORES = 12;
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_STORES);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE_STORES);
+  }, [selectedProvince, selectedDistrict, searchQuery]);
+
   // Shuffle and Group Logic
   const displayStores = useMemo(() => {
     const now = new Date().getTime();
@@ -113,6 +122,17 @@ export default function StoreList({
     return [...shuffleArray(premiums), ...shuffleArray(regulars)];
   }, [filteredStores]);
 
+  // Slice for pagination
+  const paginatedStores = useMemo(() => {
+    return displayStores.slice(0, visibleCount);
+  }, [displayStores, visibleCount]);
+
+  const hasMore = visibleCount < displayStores.length;
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 12);
+  };
+
   if (loading) {
     return (
       <div className="w-full py-16 text-center text-slate-500 font-medium">
@@ -130,19 +150,33 @@ export default function StoreList({
   }
 
   return (
-    <motion.div 
-      variants={containerDefaults}
-      initial="hidden"
-      animate="show"
-      className="w-full max-w-6xl mx-auto px-4 md:px-6 py-12"
-    >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-        {displayStores.map((store) => (
+    <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-12">
+      <motion.div 
+        variants={containerDefaults}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"
+      >
+        {paginatedStores.map((store) => (
           <motion.div key={store.id} variants={itemDefaults} className="h-full">
             <StoreCard store={store} />
           </motion.div>
         ))}
-      </div>
-    </motion.div>
+      </motion.div>
+
+      {hasMore && (
+        <div className="mt-16 flex justify-center">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleLoadMore}
+            className="px-8 py-4 bg-white text-slate-700 font-bold rounded-2xl shadow-lg border border-slate-200 hover:border-emerald-500 hover:text-emerald-500 transition-all duration-300 flex items-center gap-2"
+          >
+            <span>매장 더 보기</span>
+            <span className="text-sm opacity-50">({visibleCount} / {displayStores.length})</span>
+          </motion.button>
+        </div>
+      )}
+    </div>
   );
 }
