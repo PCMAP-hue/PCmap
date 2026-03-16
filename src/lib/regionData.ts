@@ -46,6 +46,9 @@ export const regions: RegionData = {
     "강서구", "금정구", "기장군", "남구", "동구", "동래구", "부산진구", "북구",
     "사상구", "사하구", "서구", "수영구", "연제구", "영도구", "중구", "해운대구"
   ],
+  "울산": [
+    "중구", "남구", "동구", "북구", "울주군"
+  ],
   "전북": [],
   "전남": [],
   "제주": [
@@ -72,6 +75,7 @@ export const provinceSlugMap: Record<string, string> = {
   "부산": "busan",
   "전북": "jeonbuk",
   "전남": "jeonnam",
+  "울산": "ulsan",
   "제주": "jeju",
 };
 
@@ -171,6 +175,7 @@ export const districtSlugMap: Record<string, string> = {
   // 제주
   "제주시": "jeju-si",
   "서귀포시": "seogwipo",
+  "울주군": "ulju",
   // 공통 구 이름 (중복 제거)
   "중구": "jung-gu",
   "동구": "dong-gu",
