@@ -31,7 +31,7 @@ export default function StoreCard({ store }: { store: Store }) {
     >
       {/* 16:9 Unified Thumbnail Area */}
       <div className="relative w-full aspect-video bg-slate-50 overflow-hidden flex items-center justify-center shrink-0 border-b border-slate-100">
-        {isPremium && store.thumbnailUrl ? (
+        {store.thumbnailUrl ? (
           <img 
             src={store.thumbnailUrl} 
             alt={`${store.name} 썸네일`} 
