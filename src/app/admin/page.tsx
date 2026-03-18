@@ -654,6 +654,13 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+                <div className="space-y-4 md:col-span-2">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700">16:9 썸네일 URL</label>
+                    <input placeholder="https://..." className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.thumbnailUrl} onChange={e => setFormData({...formData, thumbnailUrl: e.target.value})} />
+                  </div>
+                </div>
+
                 <div className="space-y-2 md:col-span-2 p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
                   <div>
                     <label className="font-bold text-emerald-900 flex items-center gap-2">
@@ -670,11 +677,6 @@ export default function AdminPage() {
 
                 {formData.isPremium && (
                   <div className="space-y-4 md:col-span-2">
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-slate-700">16:9 썸네일 URL (프리미엄 전용)</label>
-                      <input placeholder="https://..." className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.thumbnailUrl} onChange={e => setFormData({...formData, thumbnailUrl: e.target.value})} />
-                    </div>
-                    
                     <div className="space-y-2 bg-slate-50 border border-slate-100 p-4 rounded-xl">
                       <label className="text-sm font-semibold text-slate-700 flex flex-col gap-1">
                         <div className="flex justify-between items-center">
