@@ -6,9 +6,9 @@ import { type Store } from "@/lib/storeData";
 import { provinceList, regions } from "@/lib/regionData";
 import { Lock, LayoutDashboard, Store as StoreIcon, Plus, Edit, Trash2, LogOut, RefreshCw, BarChart, Crown, X, Search, Filter } from "lucide-react";
 
-const ADMIN_PIN = "265422";
+const ADMIN_PIN = "!Rlatjs5422";
 const PRESET_BADGES = [
-  "컴퓨터수리", "노트북수리", "프로그램", "리뷰이벤트", 
+  "컴퓨터수리", "노트북수리", "프로그램", "리뷰이벤트",
   "조립PC", "견적상담", "조립대행", "리뷰우수"
 ];
 
@@ -29,7 +29,7 @@ export default function AdminPage() {
   // Modal logic
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStore, setEditingStore] = useState<Store | null>(null);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -87,12 +87,12 @@ export default function AdminPage() {
     return stores.filter(store => {
       if (searchQuery.trim() !== "") {
         const query = searchQuery.toLowerCase().trim();
-        const matchesSearch = 
+        const matchesSearch =
           store.name.toLowerCase().includes(query) ||
           store.address.toLowerCase().includes(query) ||
           store.province.toLowerCase().includes(query) ||
           store.district.toLowerCase().includes(query);
-        
+
         if (!matchesSearch) return false;
       }
 
@@ -152,7 +152,7 @@ export default function AdminPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const payload: any = {
       name: formData.name,
       address: formData.address,
@@ -195,21 +195,21 @@ export default function AdminPage() {
           </div>
           <h1 className="text-2xl font-bold text-slate-800 mb-2 tracking-tight">관리자 로그인</h1>
           <p className="text-slate-500 mb-8 text-sm">페이지 접근을 위해 PIN을 입력하세요.</p>
-          
+
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            <input 
+            <input
               type="password"
               value={pinInput}
               onChange={(e) => {
                 setPinInput(e.target.value);
                 setPinError(false);
               }}
-              placeholder="••••••"
+              placeholder="••••••••••"
               className={`w-full bg-slate-50 border px-4 py-3 rounded-xl text-center text-xl tracking-widest font-mono focus:outline-none focus:ring-2 transition-all ${pinError ? 'border-red-400 focus:ring-red-200' : 'border-slate-200 focus:ring-emerald-200 focus:border-emerald-400'}`}
-              maxLength={6}
+              maxLength={20}
             />
-            {pinError && <p className="text-red-500 text-xs font-semibold">PIN 번호가 일치하지 않습니다.</p>}
-            
+            {pinError && <p className="text-red-500 text-xs font-semibold">비밀번호가 일치하지 않습니다.</p>}
+
             <button
               type="submit"
               className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-bold transition-all shadow-md mt-2"
@@ -234,16 +234,16 @@ export default function AdminPage() {
             Admin
           </h1>
         </div>
-        
+
         <nav className="flex-1 p-4 flex flex-col gap-2">
-          <button 
+          <button
             onClick={() => setActiveTab("dashboard")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors ${activeTab === 'dashboard' ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50'}`}
           >
             <LayoutDashboard className="w-5 h-5" />
             대시보드
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("stores")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors ${activeTab === 'stores' ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50'}`}
           >
@@ -253,7 +253,7 @@ export default function AdminPage() {
         </nav>
 
         <div className="p-4 border-t border-slate-100">
-          <button 
+          <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 w-full rounded-xl font-semibold text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
           >
@@ -273,7 +273,7 @@ export default function AdminPage() {
                   <h2 className="text-3xl font-bold text-slate-900 tracking-tight">데이터 대시보드</h2>
                   <p className="text-slate-500 mt-1 font-medium">전체 매장의 운영 성과를 확인하세요.</p>
                 </div>
-                <button 
+                <button
                   onClick={fetchStores}
                   className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 shadow-sm transition-all"
                 >
@@ -320,7 +320,7 @@ export default function AdminPage() {
                     {topStores.map((store, i) => (
                       <div key={store.id} className="p-4 px-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
                         <div className="flex items-center gap-4">
-                          <span className={`w-6 text-center font-bold ${i < 3 ? 'text-emerald-500' : 'text-slate-400'}`}>{i+1}</span>
+                          <span className={`w-6 text-center font-bold ${i < 3 ? 'text-emerald-500' : 'text-slate-400'}`}>{i + 1}</span>
                           <div>
                             <p className="font-semibold text-slate-800">{store.name}</p>
                             <p className="text-xs text-slate-500">{store.address}</p>
@@ -366,7 +366,7 @@ export default function AdminPage() {
                   <h2 className="text-3xl font-bold text-slate-900 tracking-tight">매장 관리</h2>
                   <p className="text-slate-500 mt-1 font-medium">데이터베이스의 매장을 추가, 수정, 삭제합니다.</p>
                 </div>
-                <button 
+                <button
                   onClick={() => openModal()}
                   className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-emerald-500/20 transition-all hover:-translate-y-0.5"
                 >
@@ -390,7 +390,7 @@ export default function AdminPage() {
                     className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white transition-all text-sm font-medium"
                   />
                 </div>
-                
+
                 {/* Region Selectors */}
                 <div className="flex w-full gap-3 overflow-x-auto pb-1 md:pb-0">
                   <div className="relative shrink-0">
@@ -408,7 +408,7 @@ export default function AdminPage() {
                     </select>
                     <Filter className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                   </div>
-                  
+
                   {selectedProvince !== "전체" && regions[selectedProvince]?.length > 0 && (
                     <select
                       value={selectedDistrict}
@@ -507,9 +507,9 @@ export default function AdminPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur z-10">
               <h2 className="text-xl font-bold text-slate-900">{editingStore ? "매장 수정" : "새 매장 등록"}</h2>
-              <button 
-                type="button" 
-                onClick={closeModal} 
+              <button
+                type="button"
+                onClick={closeModal}
                 className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg transition-colors"
                 aria-label="닫기"
               >
@@ -521,11 +521,11 @@ export default function AdminPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700">매장명</label>
-                  <input required placeholder="예: 컴수리연구소" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                  <input required placeholder="예: 컴수리연구소" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700">네이버 플레이스 URL</label>
-                  <input required type="url" placeholder="https://m.place.naver.com/..." className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.naverUrl} onChange={e => setFormData({...formData, naverUrl: e.target.value})} />
+                  <input required type="url" placeholder="https://m.place.naver.com/..." className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.naverUrl} onChange={e => setFormData({ ...formData, naverUrl: e.target.value })} />
                 </div>
 
                 {/* 지역 선택 UI 개선 */}
@@ -541,11 +541,10 @@ export default function AdminPage() {
                           key={p}
                           type="button"
                           onClick={() => setFormData({ ...formData, province: p, district: "" })}
-                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
-                            formData.province === p 
-                              ? "bg-emerald-500 text-white shadow-md shadow-emerald-200 scale-105" 
+                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${formData.province === p
+                              ? "bg-emerald-500 text-white shadow-md shadow-emerald-200 scale-105"
                               : "bg-white text-slate-600 border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
-                          }`}
+                            }`}
                         >
                           {p}
                         </button>
@@ -565,11 +564,10 @@ export default function AdminPage() {
                             key={d}
                             type="button"
                             onClick={() => setFormData({ ...formData, district: d })}
-                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
-                              formData.district === d 
-                                ? "bg-blue-500 text-white shadow-sm scale-105" 
+                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${formData.district === d
+                                ? "bg-blue-500 text-white shadow-sm scale-105"
                                 : "bg-white text-slate-500 border border-slate-200 hover:border-blue-300 hover:bg-blue-50"
-                            }`}
+                              }`}
                           >
                             {d}
                           </button>
@@ -577,7 +575,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Hidden inputs for form validation if needed, or informative text */}
                   <div className="flex gap-4 mt-2">
                     <div className="flex-1">
@@ -597,7 +595,7 @@ export default function AdminPage() {
 
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-semibold text-slate-700">상세 주소</label>
-                  <input required placeholder="전체 주소 입력" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+                  <input required placeholder="전체 주소 입력" className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
                 </div>
 
                 <div className="space-y-4 md:col-span-2 p-5 bg-slate-50 rounded-2xl border border-slate-200 shadow-inner mt-2">
@@ -626,11 +624,10 @@ export default function AdminPage() {
                                 });
                               }
                             }}
-                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
-                              isSelected
+                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${isSelected
                                 ? "bg-emerald-500 text-white shadow-md shadow-emerald-200 scale-105"
                                 : "bg-white text-slate-600 border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
-                            }`}
+                              }`}
                           >
                             #{badge}
                           </button>
@@ -638,7 +635,7 @@ export default function AdminPage() {
                       })}
                     </div>
                   </div>
-                  
+
                   {/* Selected badges display */}
                   <div className="pt-3 border-t border-slate-200 flex flex-wrap gap-2 items-center">
                     <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">선택됨:</p>
@@ -657,7 +654,7 @@ export default function AdminPage() {
                 <div className="space-y-4 md:col-span-2">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-700">16:9 썸네일 URL</label>
-                    <input placeholder="https://..." className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.thumbnailUrl} onChange={e => setFormData({...formData, thumbnailUrl: e.target.value})} />
+                    <input placeholder="https://..." className="w-full text-slate-900 font-medium bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400" value={formData.thumbnailUrl} onChange={e => setFormData({ ...formData, thumbnailUrl: e.target.value })} />
                   </div>
                 </div>
 
@@ -670,7 +667,7 @@ export default function AdminPage() {
                     <p className="text-xs text-emerald-600 mt-1">프리미엄 활성화 시 썸네일 노출 및 상단 배치</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input type="checkbox" className="sr-only peer" checked={formData.isPremium} onChange={e => setFormData({...formData, isPremium: e.target.checked})} />
+                    <input type="checkbox" className="sr-only peer" checked={formData.isPremium} onChange={e => setFormData({ ...formData, isPremium: e.target.checked })} />
                     <div className="w-14 h-7 bg-emerald-200 rounded-full peer peer-checked:bg-emerald-500 transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-7 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
                   </label>
                 </div>
@@ -688,10 +685,10 @@ export default function AdminPage() {
                           )}
                         </div>
                       </label>
-                      <select 
+                      <select
                         className="w-full bg-white border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium text-slate-700"
                         value={formData.premiumMonths}
-                        onChange={e => setFormData({...formData, premiumMonths: parseInt(e.target.value)})}
+                        onChange={e => setFormData({ ...formData, premiumMonths: parseInt(e.target.value) })}
                       >
                         <option value={1}>1개월 (결제일로부터 1개월 후 자동 해제)</option>
                         <option value={3}>3개월 (결제일로부터 3개월 후 자동 해제)</option>
