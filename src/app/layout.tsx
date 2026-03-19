@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "PC맵",
     images: [
       {
-        url: "/logo.png",
+        url: "https://pcmap-hue.vercel.app/logo.png",
         width: 800,
         height: 600,
         alt: "PC맵 로고",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "PC맵 - 허위 출장 없는 진짜 우리 동네 컴퓨터 수리점",
     description: "PC맵에서 검증된 우리 동네 오프라인 수리점을 확인하세요.",
-    images: ["/logo.png"],
+    images: ["https://pcmap-hue.vercel.app/logo.png"],
   },
   robots: {
     index: true,
